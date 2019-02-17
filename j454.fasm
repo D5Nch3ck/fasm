@@ -1,0 +1,173 @@
+;========================================================================
+;        File:  j666
+;      Author:  josamont
+; Description:  Reverse source code
+;     Created:  2017-06-16   T 17:22 PM
+;    Compiler:  fasm rev-j456.asm rev-j456
+;========================================================================
+
+format ELF executable
+entry start
+
+ccheck_S:
+		         mov 	 eax, eax
+                 mov     esi, ccheck_S
+                 mov     edi, 090909Ah
+                 xor     eax, eax
+
+c_byte:
+                 xor     ebx, ebx
+                 mov     bl, byte [ds:esi]
+                 add     eax, ebx
+                 inc     esi
+                 cmp     esi, edi
+                 jbe     short c_byte
+                 mov     dword [ds:f_byte1], eax
+                 retn
+
+start:
+                 call    ccheck_S
+
+c_pass_hex:
+                 mov     ecx, sPassword   ; 04918DB9
+                 mov     edx, 0Ah
+                 call    m_print
+                 mov     eax, 3
+                 mov     ebx, 1           ; fd
+                 mov     ecx, u_p         ; addr
+                 mov     edx, 8           ; len
+                 int     80h              ; sys_read
+                 call    b_equal
+                 mov     ecx, 9
+                 call    f_p
+                 mov     ecx, 4
+                 mov     esi, c_pass_hex
+                 mov     edi, f_byte
+
+c_capital:
+                 repe cmpsb
+                 jz      good
+                 mov     ecx, NO
+                 mov     edx, 4
+                 call    m_print
+                 jmp     m_bye
+
+good:
+                 mov     ecx, OK
+                 mov     edx, 4
+                 call    m_print
+
+m_bye:
+                 mov     eax, 1
+                 xor     ebx, ebx        ; status
+                 int     80h             ; sys_exit
+
+
+
+m_print:
+                 mov     eax, 4
+                 mov     ebx, 1          ; fd
+                 int     80h             ; sys_write
+                 retn
+
+b_equal:
+                 mov     ebp, dword [ds:byte_l]
+                 mov     ebx, c_capital
+                 mov     edi, 1
+                 mov     eax, dword [ds:ebx]
+                 xor     eax, ebp
+                 jnz     short m_bye
+                 mov     ebp, u_p
+                 mov     eax, u_p2
+
+OK:
+                 dec     edi
+                 dec     ebx
+                 or      al, [eax]
+                 xor     ebx, ebx
+                 mov     esi, 1
+                 cmp     edi, 0
+                 jz      short loop_s_pass
+                 mov     eax, u_p1
+
+NO:
+                 dec     esi
+                 outsd
+                 or      al, [eax]
+                 cmp     esi, 0
+                 jnz     short f_loc
+
+loop_s_pass:
+                 mov     eax, dword [ss:ebp+0]
+                 and     eax, 0FFh
+                 cmp     al, 65h
+                 ja      short f_loc
+                 sub     al, 30h
+                 jb      short f_loc
+                 cmp     al, 0Ah
+                 jb      short l_endian
+                 sub     al, 7
+
+l_endian:
+                 shl     ebx, 4
+                 add     ebx, eax
+                 inc     ebp
+                 jmp     short loop_s_pass
+
+f_loc:
+                 mov     dword [ds:f_byte], ebx
+                 retn
+
+f_p:
+                 mov     ebx, 0BAD7701Fh
+                 mov     eax, u_p2
+
+f_loc1:
+                 xor     dword [ds:eax], ebx
+                 add     eax, 4
+                 not     ebx
+                 dec     ecx
+                 jnz     short f_loc1
+                 retn
+
+segment readable writeable
+sPassword       db 'Password: ',0
+u_p2        	db    0
+                db 0EFh
+                db 0FEh
+                db 0BAh
+u_p1     	    db 0DCh
+                db 0AFh
+                db 0EFh
+                db 0FFh
+                db 0CCh
+                db 0DCh
+                db 0BBh
+                db 0AAh
+                db    0
+                db 0AAh
+                db 0EFh
+                db 0FEh
+                db  0Bh
+                db 011h
+                db 022h
+                db 03Fh
+                db    0
+                db 0BAh
+                db 0ADh
+                db 0CAh
+                db    0
+                db 0FEh
+                db 0CAh
+                db 0DAh
+                db 0CAh
+                db 0FEh
+                db 0CAh
+                db 0FEh
+u_p     	    db    0
+                db    0
+                db    0
+                db    0
+f_byte   	    dd    0
+f_byte1   	    dd    0
+byte_l 		    dd 1174A6F3h ;repe cmpsb jz 0x15 (good)
